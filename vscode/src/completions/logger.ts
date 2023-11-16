@@ -218,6 +218,13 @@ export function loaded(
     if (event.items.length === 0) {
         event.items = items.map(completionItemToItemInfo)
     }
+
+    if (!event.params.charCount) {
+        const { lineCount, charCount } = lineAndCharCount(items[0])
+
+        event.params.lineCount = lineCount
+        event.params.charCount = charCount
+    }
 }
 
 // Suggested completions will not be logged immediately. Instead, we log them when we either hide
@@ -238,10 +245,6 @@ export function suggested(id: CompletionLogID, completion: InlineCompletionItemW
     }
 
     if (!event.suggestedAt) {
-        const { lineCount, charCount } = lineAndCharCount(completion)
-
-        event.params.lineCount = lineCount
-        event.params.charCount = charCount
         event.suggestedAt = performance.now()
 
         setTimeout(() => {
