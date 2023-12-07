@@ -272,17 +272,15 @@ function getUpdatedDocContext(params: GetUpdatedDocumentContextParams): Document
         text: initialCompletion,
     })
 
-    const newPrefix = prefix + firstLine
-    // Remove the characters that are being replaced by the completion
-    // to reduce the chances of breaking the parse tree with redundant symbols.
-    const newSuffix = suffix.slice(matchingSuffixLength)
     const updatedDocContext = getDerivedDocContext({
         languageId: document.languageId,
         position: updatedPosition,
         dynamicMultilineCompletions: true,
         documentDependentContext: {
-            prefix: newPrefix,
-            suffix: newSuffix,
+            prefix: prefix + firstLine,
+            // Remove the characters that are being replaced by the completion
+            // to reduce the chances of breaking the parse tree with redundant symbols.
+            suffix: suffix.slice(matchingSuffixLength),
             injectedPrefix: null,
             completionPostProcessId,
         },
@@ -299,9 +297,6 @@ function getUpdatedDocContext(params: GetUpdatedDocumentContextParams): Document
 
         return {
             ...docContext,
-            // TODO: missing updated prefix?
-            // prefix: newPrefix,
-            // suffix: newSuffix,
             completionPostProcessId,
             multilineTrigger: updatedDocContext.multilineTrigger,
             multilineTriggerPosition: updatedDocContext.multilineTriggerPosition,
