@@ -18,6 +18,9 @@ describe('TreeViewProvider', () => {
     const codyEnabled = true
     const validUser = true
     const endpoint = 'https://example.com'
+    const primaryEmail = 'email@domain.com'
+    const displayName = 'Hello There'
+    const avatarURL = 'https://example.com/avatar.png'
 
     let tree: TreeViewProvider
 
@@ -43,7 +46,7 @@ describe('TreeViewProvider', () => {
         await waitForTreeUpdate()
         const nextUpdate = waitForTreeUpdate()
         tree.syncAuthStatus(
-            newAuthStatus(endpoint, isDotComOrApp, validUser, verifiedEmail, codyEnabled, upgradeAvailable, siteVersion)
+            newAuthStatus(endpoint, isDotComOrApp, validUser, verifiedEmail, codyEnabled, upgradeAvailable, siteVersion, avatarURL, primaryEmail, displayName)
         )
         return nextUpdate
     }

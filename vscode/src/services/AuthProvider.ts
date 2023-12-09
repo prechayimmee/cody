@@ -7,6 +7,7 @@ import { isError } from '@sourcegraph/cody-shared/src/utils'
 
 import { CodyChatPanelViewType } from '../chat/chat-view/ChatManager'
 import {
+    ACCOUNT_USAGE_URL,
     AuthStatus,
     defaultAuthStatus,
     isLoggedIn as isAuthed,
@@ -130,6 +131,34 @@ export class AuthProvider {
         }
     }
 
+    public async accountMenu(): Promise<void> {
+        if (!this.authStatus.authenticated || !this.authStatus.endpoint) {
+            return
+        }
+
+        const option = await vscode.window.showInformationMessage(
+            `${this.authStatus.displayName} (${this.authStatus.primaryEmail})`,
+            {
+                modal: true,
+                detail: `Signed in to ${this.authStatus.endpoint}`,
+            },
+            'Manage Account',
+            'Switch Account...',
+            'Sign Out'
+        )
+        switch (option) {
+            case 'Manage Account':
+                void vscode.env.openExternal(vscode.Uri.parse(ACCOUNT_USAGE_URL.toString()))
+                break;
+            case 'Switch Account...':
+                await this.signinMenu()
+                break;
+            case 'Sign Out':
+                await this.signoutMenu()
+                break;
+        }
+    }
+
     // Log user out of the selected endpoint (remove token from secret)
     private async signout(endpoint: string): Promise<void> {
         await secretStorage.deleteToken(endpoint)
@@ -182,7 +211,10 @@ export class AuthProvider {
                 enabled,
                 /* userCanUpgrade: */ false,
                 version,
-                configOverwrites
+                '',
+                '',
+                '',
+                configOverwrites,
             )
         }
 
@@ -211,6 +243,9 @@ export class AuthProvider {
             isCodyEnabled,
             userCanUpgrade,
             version,
+            userInfo.avatarURL,
+            userInfo.primaryEmail,
+            userInfo.displayName,
             configOverwrites
         )
     }

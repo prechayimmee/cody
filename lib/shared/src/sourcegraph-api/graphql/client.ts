@@ -14,7 +14,7 @@ import {
     CURRENT_SITE_HAS_CODY_ENABLED_QUERY,
     CURRENT_SITE_IDENTIFICATION,
     CURRENT_SITE_VERSION_QUERY,
-    CURRENT_USER_ID_AND_VERIFIED_EMAIL_AND_CODY_PRO_QUERY,
+    CURRENT_USER_INFO_AND_VERIFIED_EMAIL_AND_CODY_PRO_QUERY,
     CURRENT_USER_ID_QUERY,
     EVALUATE_FEATURE_FLAG_QUERY,
     GET_CODY_CONTEXT_QUERY,
@@ -59,7 +59,7 @@ interface CurrentUserIdResponse {
 }
 
 interface CurrentUserIdHasVerifiedEmailHasCodyProResponse {
-    currentUser: { id: string; hasVerifiedEmail: boolean; codyProEnabled: boolean } | null
+    currentUser: { id: string; hasVerifiedEmail: boolean; primaryEmail: string; displayName: string; avatarURL: string; codyProEnabled: boolean; } | null
 }
 
 interface CodyLLMSiteConfigurationResponse {
@@ -313,10 +313,17 @@ export class SourcegraphGraphQLAPIClient {
     }
 
     public async getCurrentUserIdAndVerifiedEmailAndCodyPro(): Promise<
-        { id: string; hasVerifiedEmail: boolean; codyProEnabled: boolean } | Error
+        {
+            id: string;
+            hasVerifiedEmail: boolean;
+            displayName: string;
+            primaryEmail: string;
+            avatarURL: string;
+            codyProEnabled: boolean;
+        } | Error
     > {
         return this.fetchSourcegraphAPI<APIResponse<CurrentUserIdHasVerifiedEmailHasCodyProResponse>>(
-            CURRENT_USER_ID_AND_VERIFIED_EMAIL_AND_CODY_PRO_QUERY,
+            CURRENT_USER_INFO_AND_VERIFIED_EMAIL_AND_CODY_PRO_QUERY,
             {}
         ).then(response =>
             extractDataOrError(response, data =>
