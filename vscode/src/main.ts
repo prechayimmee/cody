@@ -501,7 +501,7 @@ const register = async (
 
             authStatus.hasVerifiedEmail = res.hasVerifiedEmail
             authStatus.userCanUpgrade = !res.codyProEnabled
-            authStatus.primaryEmail = res.primaryEmail
+            authStatus.primaryEmail = res.primaryEmail.email
             authStatus.displayName = res.displayName
             authStatus.avatarURL = res.avatarURL
 

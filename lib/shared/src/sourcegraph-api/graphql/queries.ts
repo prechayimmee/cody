@@ -34,9 +34,11 @@ query CurrentUser {
         id
         hasVerifiedEmail
         displayName
-        primaryEmail
         avatarURL
         codyProEnabled
+        primaryEmail {
+            email
+        }
     }
 }`
 

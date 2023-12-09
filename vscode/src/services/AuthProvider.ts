@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 
 import { ConfigurationWithAccessToken } from '@sourcegraph/cody-shared/src/configuration'
-import { DOTCOM_URL, LOCAL_APP_URL } from '@sourcegraph/cody-shared/src/sourcegraph-api/environments'
+import { DOTCOM_URL, LOCAL_APP_URL, isDotCom } from '@sourcegraph/cody-shared/src/sourcegraph-api/environments'
 import { SourcegraphGraphQLAPIClient } from '@sourcegraph/cody-shared/src/sourcegraph-api/graphql'
 import { isError } from '@sourcegraph/cody-shared/src/utils'
 
@@ -136,11 +136,28 @@ export class AuthProvider {
             return
         }
 
+        if (!isDotCom(this.authStatus.endpoint)) {
+            const option = await vscode.window.showInformationMessage(
+                `Signed in to ${this.authStatus.endpoint}`,
+                { modal: true },
+                'Switch Account...',
+                'Sign Out'
+            )
+            switch (option) {
+                case 'Switch Account...':
+                    await this.signinMenu()
+                    return;
+                case 'Sign Out':
+                    await this.signoutMenu()
+                    return;
+            }
+        }
+
         const option = await vscode.window.showInformationMessage(
             `${this.authStatus.displayName} (${this.authStatus.primaryEmail})`,
             {
                 modal: true,
-                detail: `Signed in to ${this.authStatus.endpoint}`,
+                detail: `Plan: ${this.authStatus.userCanUpgrade ? 'Cody Pro' : 'Cody Free'}`,
             },
             'Manage Account',
             'Switch Account...',
@@ -149,13 +166,13 @@ export class AuthProvider {
         switch (option) {
             case 'Manage Account':
                 void vscode.env.openExternal(vscode.Uri.parse(ACCOUNT_USAGE_URL.toString()))
-                break;
+                return;
             case 'Switch Account...':
                 await this.signinMenu()
-                break;
+                return;
             case 'Sign Out':
                 await this.signoutMenu()
-                break;
+                return;
         }
     }
 
@@ -244,7 +261,7 @@ export class AuthProvider {
             userCanUpgrade,
             version,
             userInfo.avatarURL,
-            userInfo.primaryEmail,
+            userInfo.primaryEmail.email,
             userInfo.displayName,
             configOverwrites
         )

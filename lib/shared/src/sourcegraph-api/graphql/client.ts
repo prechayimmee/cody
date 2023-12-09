@@ -59,7 +59,16 @@ interface CurrentUserIdResponse {
 }
 
 interface CurrentUserIdHasVerifiedEmailHasCodyProResponse {
-    currentUser: { id: string; hasVerifiedEmail: boolean; primaryEmail: string; displayName: string; avatarURL: string; codyProEnabled: boolean; } | null
+    currentUser: {
+        id: string;
+        hasVerifiedEmail: boolean;
+        displayName: string;
+        avatarURL: string;
+        codyProEnabled: boolean;
+        primaryEmail: {
+            email: string;
+        }
+    } | null
 }
 
 interface CodyLLMSiteConfigurationResponse {
@@ -317,9 +326,11 @@ export class SourcegraphGraphQLAPIClient {
             id: string;
             hasVerifiedEmail: boolean;
             displayName: string;
-            primaryEmail: string;
             avatarURL: string;
             codyProEnabled: boolean;
+            primaryEmail: {
+                email: string;
+            }
         } | Error
     > {
         return this.fetchSourcegraphAPI<APIResponse<CurrentUserIdHasVerifiedEmailHasCodyProResponse>>(
